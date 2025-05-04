@@ -57,3 +57,21 @@ Este projeto está licenciado sob a [MIT License](LICENSE).
 
 📌 Projeto criado e mantido por [@wfsantos](https://github.com/wfsantos) com o propósito de fortalecer a democracia através da informação acessível.
 
+
+<code _ngcontent-ng-c2337284394="" role="text" data-test-id="code-content" class="code-container formatted ng-tns-c2337284394-195 no-decoration-radius" data-sourcepos="7:1-24:17">app/
+├── Controllers/
+│   └── Home.php
+│   └── Temas.php
+├── Models/
+│   └── TemaModel.php
+│   └── VotoModel.php
+├── Views/
+│   ├── home.php
+│   ├── lista_temas.php
+│   └── modal_votos.php
+public/
+├── css/
+│   └── style.css
+└── js/
+    └── script.js
+</code>
