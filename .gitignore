@@ -1,0 +1,26 @@
+# Dependências
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Ambiente e Chaves Privadas
+.env
+.env.local
+.env.production
+
+# Banco de Dados Local e Uploads
+database.sqlite
+uploads/*
+!uploads/.gitkeep
+
+# Logs e Cobertura
+logs/
+*.log
+coverage/
+.nyc_output/
+
+# IDE e Sistema Operacional
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

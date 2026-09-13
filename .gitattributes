@@ -1,0 +1,10 @@
+# Padronização de quebra de linha no Git
+* text=auto eol=lf
+*.bat eol=crlf
+*.cmd eol=crlf
+*.ps1 eol=crlf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.sqlite binary

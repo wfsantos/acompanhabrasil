@@ -1,0 +1,81 @@
+/* Estilos Customizados e Animações — AcompanhaBrasil */
+
+:root {
+  --primary-blue: #003399;
+  --tse-yellow: #FFCC00;
+  --tse-green: #008837;
+  --alert-red: #D32F2F;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Moldura do Scanner de QR Code */
+.scanner-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+}
+
+.scanner-laser {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00FF66, transparent);
+  box-shadow: 0 0 8px #00FF66;
+  animation: scanning 2s linear infinite;
+}
+
+@keyframes scanning {
+  0% { top: 5%; }
+  50% { top: 95%; }
+  100% { top: 5%; }
+}
+
+/* Efeito de Destaque para Linhas Divergentes no Painel */
+.row-divergente {
+  background-color: #FEF2F2 !important;
+  border-left: 4px solid #EF4444 !important;
+}
+
+.badge-divergente {
+  background-color: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #F87171;
+  font-weight: 700;
+}
+
+.badge-validado {
+  background-color: #DCFCE7;
+  color: #166534;
+  border: 1px solid #86EFAC;
+  font-weight: 600;
+}
+
+/* Transições suaves */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Estilo para barra de rolagem limpa */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
