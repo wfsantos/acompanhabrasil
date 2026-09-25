@@ -43,7 +43,7 @@ Através de uma aplicação 100% web (sem necessidade de instalar aplicativos de
   ├── Validador Criptográfico & Anonimização (AES-256, HMAC-SHA256)
   ├── Parser de QR Code de Boletim de Urna (QRBU)
   ├── Motor de Detecção de Divergências entre Envios
-  └── Banco de Dados (SQLite / PostgreSQL)
+  └── Banco de Dados (MySQL 5.7+ / 8.0+ / MariaDB / Fallback SQLite)
              │
              ▼
 [ Painel Público de Auditoria e Transparência ]
@@ -59,7 +59,7 @@ Através de uma aplicação 100% web (sem necessidade de instalar aplicativos de
 - **QR Code Engine:** `jsQR` (processamento local em canvas).
 - **OCR Engine:** `Tesseract.js` (WebAssembly worker no cliente).
 - **Segurança & Criptografia:** AES-256-GCM, HMAC-SHA256, JWT, Helmet, Rate Limiting.
-- **Banco de Dados:** SQLite (zero-config local) e PostgreSQL (produção).
+- **Banco de Dados:** MySQL 5.7+ / 8.0+ / 8.4+ / MariaDB (Driver `mysql2` com pool) e fallback SQLite.
 - **Testes:** Suíte de testes automatizados com o test runner nativo do Node.js.
 
 ---
@@ -68,6 +68,7 @@ Através de uma aplicação 100% web (sem necessidade de instalar aplicativos de
 
 ```
 acompanhabrasil/
+├── schema.sql                 # Script SQL oficial de criação do banco MySQL
 ├── .env.example              # Modelo documentado de variáveis de ambiente
 ├── .gitignore                 # Exclusões seguras para git
 ├── LICENSE                    # Licença de código aberto MIT
@@ -76,11 +77,12 @@ acompanhabrasil/
 ├── docs/                      # Documentação técnica e manuais
 │   ├── ARQUITETURA.md         # Diagramas e decisões de arquitetura
 │   ├── FLUXO_DE_DADOS.md      # Ciclo de vida dos dados e validações
-│   ├── MODELO_DO_BANCO.md     # Esquema do banco de dados (DER) e dicionário
+│   ├── MODELO_DO_BANCO.md     # Esquema do banco de dados MySQL (DER) e dicionário
 │   ├── MANUAL_DO_VOLUNTARIO.md# Guia passo a passo para o cidadão
+│   ├── ROTEIRO_DE_VIDEO.md    # Roteiro de apresentação em 10 cenas
 │   ├── TERMOS_DE_USO.md       # Termos de uso do serviço
 │   ├── POLITICA_DE_PRIVACIDADE.md # Conformidade estrita com a LGPD
-│   └── GUIA_DE_DEPLOY.md      # Instruções para Railway, Vercel, Docker
+│   └── GUIA_DE_DEPLOY.md      # Instruções para Railway, Docker e Servidores MySQL
 ├── src/                       # Código-fonte do Backend
 │   ├── server.js              # Ponto de entrada do servidor Express
 │   ├── config/                # Configurações de banco e segurança
