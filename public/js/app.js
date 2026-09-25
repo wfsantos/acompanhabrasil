@@ -245,6 +245,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (btnSnapshot) {
     btnSnapshot.addEventListener('click', async () => {
+      // Verifica se a imagem é muito escura ou sem contraste
+      if (ocrEngine.isImageTooDark(canvas)) {
+        alert('A imagem capturada está muito escura ou ilegível. Por favor, aponte a câmera com boa iluminação para o Boletim de Urna afixado.');
+        return;
+      }
+
       const snapshot = camera.takeSnapshot();
       if (snapshot) {
         sessionData.capturedImageBase64 = snapshot;
@@ -272,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (qrData) {
             onQrCodeDetected(qrData);
           } else {
-            // Se não achou QR, roda OCR
+            // Se não achou QR, roda OCR estrito
             await runOcrOnImage(imageBase64);
           }
         };
@@ -283,65 +289,69 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function onQrCodeDetected(qrText) {
-    qrScanner.stopScanning();
-    camera.stopCamera();
+    if (!qrText || typeof qrText !== 'string' || qrText.trim().length < 10) {
+      alert('QR Code detectado não parece ser um Boletim de Urna válido.');
+      return;
+    }
 
     sessionData.rawQrText = qrText;
     if (!sessionData.capturedImageBase64) {
-      sessionData.capturedImageBase64 = camera.takeSnapshot() || createPlaceholderImage();
+      sessionData.capturedImageBase64 = camera.takeSnapshot();
     }
 
     try {
       const parsedResponse = await Api.parseQr(qrText);
-      if (parsedResponse.sucesso) {
+      if (parsedResponse.sucesso && parsedResponse.buData) {
+        // Valida se o QR contém dados reais de votação
+        if (!parsedResponse.buData.votosDetalhe || parsedResponse.buData.votosDetalhe.length === 0) {
+          alert('O QR Code lido não contém dados de votação reconhecíveis.');
+          return;
+        }
+
+        qrScanner.stopScanning();
+        camera.stopCamera();
+
         sessionData.buData = parsedResponse.buData;
         fillStep3Form(sessionData.buData);
         goToStep(3);
       } else {
-        alert('QR Code lido, mas não foi possível extrair dados: ' + parsedResponse.erro);
+        alert('QR Code lido, mas não foi possível extrair dados oficiais: ' + (parsedResponse.erro || 'Formato não reconhecido'));
       }
     } catch (err) {
       console.error(err);
-      alert('Erro ao processar o QR Code.');
+      alert('Erro ao processar o QR Code. Certifique-se de que é um QR Code oficial do TSE.');
     }
   }
 
   async function runOcrOnImage(imageSource) {
     ocrStatus.classList.remove('hidden');
-    ocrProgress.textContent = 'Iniciando leitura OCR...';
-    ocrProgressBar.style.width = '10%';
+    ocrProgress.textContent = 'Analisando imagem com OCR...';
+    ocrProgressBar.style.width = '15%';
 
     try {
       const result = await ocrEngine.recognizeText(imageSource, (percent) => {
-        ocrProgress.textContent = `Processando imagem com OCR... ${percent}%`;
+        ocrProgress.textContent = `Lendo texto do Boletim de Urna... ${percent}%`;
         ocrProgressBar.style.width = `${percent}%`;
       });
 
       ocrStatus.classList.add('hidden');
-      const metrics = ocrEngine.extractMetricsFromText(result.text);
+      const ocrAnalysis = ocrEngine.extractMetricsFromText(result.text);
 
-      sessionData.buData = {
-        aptos: metrics.aptos || 400,
-        comparecimento: metrics.comparecimento || 350,
-        faltosos: (metrics.aptos && metrics.comparecimento) ? (metrics.aptos - metrics.comparecimento) : 50,
-        brancos: 10,
-        nulos: 15,
-        votosDetalhe: [
-          { cargo: 'PRESIDENTE', numeroCandidato: '13', nomeCandidato: 'CANDIDATO 13', partido: 'PARTIDO 13', tipoVoto: 'NOMINAL', quantidadeVotos: 165 },
-          { cargo: 'PRESIDENTE', numeroCandidato: '22', nomeCandidato: 'CANDIDATO 22', partido: 'PARTIDO 22', tipoVoto: 'NOMINAL', quantidadeVotos: 160 },
-          { cargo: 'PRESIDENTE', numeroCandidato: 'BRANCO', nomeCandidato: 'VOTO EM BRANCO', partido: 'N/A', tipoVoto: 'BRANCO', quantidadeVotos: 10 },
-          { cargo: 'PRESIDENTE', numeroCandidato: 'NULO', nomeCandidato: 'VOTO NULO', partido: 'N/A', tipoVoto: 'NULO', quantidadeVotos: 15 }
-        ]
-      };
+      if (!ocrAnalysis.isValidBu || !ocrAnalysis.metrics) {
+        alert('Não foi possível identificar um Boletim de Urna válido nesta imagem.\n\nPor favor, garanta que a foto esteja nítida, com boa iluminação e que o cabeçalho e os votos estejam visíveis, ou aponte para o QR Code oficial.');
+        return;
+      }
 
+      qrScanner.stopScanning();
+      camera.stopCamera();
+
+      sessionData.buData = ocrAnalysis.metrics;
       fillStep3Form(sessionData.buData);
       goToStep(3);
 
     } catch (err) {
       ocrStatus.classList.add('hidden');
-      alert('Não foi possível ler os números com OCR. Preencha manualmente.');
-      fillStep3Form(sessionData.buData);
-      goToStep(3);
+      alert('Falha no processamento da imagem. Certifique-se de que o documento afixado está bem enquadrado e iluminado.');
     }
   }
 
@@ -508,6 +518,18 @@ document.addEventListener('DOMContentLoaded', () => {
           quantidadeVotos: qtd
         });
       });
+
+      const comparecimentoVal = parseInt(document.getElementById('rev-comparecimento').value, 10) || 0;
+
+      if (!sessionData.capturedImageBase64) {
+        alert('É obrigatório anexar ou capturar a foto do Boletim de Urna para envio.');
+        return;
+      }
+
+      if (votosDetalhe.length === 0 || comparecimentoVal <= 0) {
+        alert('Não é possível submeter um Boletim de Urna sem dados de votação apurados ou com comparecimento zerado.');
+        return;
+      }
 
       const payload = {
         uf: document.getElementById('rev-uf').value,

@@ -122,6 +122,20 @@ async function submitBoletim(req, res) {
       imagemSha256 = calculateSha256(buffer);
     }
 
+    if (!imagemUrl) {
+      return res.status(400).json({
+        sucesso: false,
+        erro: 'É obrigatório enviar a fotografia do Boletim de Urna para fins de auditoria pública.'
+      });
+    }
+
+    if (!Array.isArray(votosDetalhe) || votosDetalhe.length === 0 || comparecimento <= 0) {
+      return res.status(422).json({
+        sucesso: false,
+        erro: 'Submissão rejeitada: O Boletim de Urna deve conter dados de votação apurados e comparecimento maior que zero.'
+      });
+    }
+
     // Executa Validação Matemática
     const buParaValidar = {
       aptos,
