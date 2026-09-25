@@ -7,6 +7,7 @@ yarn-error.log
 .env
 .env.local
 .env.production
+.DS_Store
 
 # Banco de Dados Local e Uploads
 database.sqlite
@@ -18,6 +19,7 @@ logs/
 *.log
 coverage/
 .nyc_output/
+schema.sql
 
 # IDE e Sistema Operacional
 .DS_Store
